@@ -1,0 +1,589 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Thousand Boxes</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        --bg: #0b0c0f;
+        --surface: #111318;
+        --border: #1e2029;
+        --muted: #3a3d4a;
+        --text: #c8cad4;
+        --dim: #5a5e6e;
+        --accent: #e8c97a;
+        --accent2: #7a9ee8;
+        --check: #e8c97a;
+        --glow: rgba(232, 201, 122, 0.18);
+        --glow2: rgba(122, 158, 232, 0.13);
+        --font-mono: "DM Mono", monospace;
+        --font-disp: "Playfair Display", serif;
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: var(--font-mono);
+        min-height: 100vh;
+        overflow-x: hidden;
+        cursor: crosshair;
+      }
+
+      /* ── NOISE OVERLAY ── */
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+        background-size: 200px;
+        pointer-events: none;
+        z-index: 100;
+        opacity: 0.6;
+      }
+
+      /* ── HEADER ── */
+      header {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        background: rgba(11, 12, 15, 0.92);
+        backdrop-filter: blur(18px);
+        border-bottom: 1px solid var(--border);
+        padding: 0 clamp(1.5rem, 5vw, 4rem);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 64px;
+      }
+
+      .logo {
+        font-family: var(--font-disp);
+        font-size: 1.25rem;
+        font-style: italic;
+        color: var(--accent);
+        letter-spacing: -0.01em;
+      }
+
+      .logo span {
+        font-style: normal;
+        color: var(--dim);
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        margin-left: 0.75rem;
+        vertical-align: middle;
+      }
+
+      .header-meta {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        font-size: 0.72rem;
+        color: var(--dim);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      .pill {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        padding: 0.3rem 0.85rem;
+        font-size: 0.68rem;
+        transition: border-color 0.2s;
+      }
+
+      .pill.online {
+        border-color: #4ade80;
+      }
+
+      .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--muted);
+        animation: pulse 2s ease-in-out infinite;
+      }
+      .dot.live {
+        background: #4ade80;
+        box-shadow: 0 0 6px #4ade8088;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.4;
+        }
+      }
+
+      #ws-status {
+        transition: color 0.3s;
+      }
+
+      /* ── HERO BAND ── */
+      .hero {
+        padding: clamp(2.5rem, 5vw, 4rem) clamp(1.5rem, 5vw, 4rem) 0;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: end;
+        gap: 2rem;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 2rem;
+      }
+
+      .hero-title {
+        font-family: var(--font-disp);
+        font-size: clamp(2.2rem, 5vw, 3.8rem);
+        font-weight: 700;
+        line-height: 1.05;
+        color: #fff;
+        letter-spacing: -0.03em;
+      }
+
+      .hero-title em {
+        font-style: italic;
+        color: var(--accent);
+        display: block;
+      }
+
+      .hero-sub {
+        font-size: 0.72rem;
+        color: var(--dim);
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        margin-top: 1rem;
+        line-height: 1.8;
+      }
+
+      .hero-stats {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 0.75rem;
+        text-align: right;
+      }
+
+      .stat-block {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 0.75rem 1.25rem;
+        background: var(--surface);
+        min-width: 140px;
+      }
+
+      .stat-num {
+        font-family: var(--font-disp);
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--accent);
+        line-height: 1;
+        transition: color 0.3s;
+      }
+
+      .stat-num.accent2 {
+        color: var(--accent2);
+      }
+
+      .stat-label {
+        font-size: 0.62rem;
+        color: var(--dim);
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        margin-top: 0.25rem;
+      }
+
+      /* ── CONTROLS ── */
+      .controls {
+        padding: 1.25rem clamp(1.5rem, 5vw, 4rem);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        border-bottom: 1px solid var(--border);
+        flex-wrap: wrap;
+      }
+
+      .progress-wrap {
+        flex: 1;
+        min-width: 200px;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .progress-bar {
+        flex: 1;
+        height: 3px;
+        background: var(--border);
+        border-radius: 2px;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--accent2), var(--accent));
+        border-radius: 2px;
+        transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        width: 0%;
+      }
+
+      .progress-pct {
+        font-size: 0.7rem;
+        color: var(--dim);
+        letter-spacing: 0.08em;
+        min-width: 38px;
+        text-align: right;
+      }
+
+      .btn {
+        font-family: var(--font-mono);
+        font-size: 0.68rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--dim);
+        border-radius: 6px;
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        white-space: nowrap;
+      }
+
+      .btn:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+        background: rgba(232, 201, 122, 0.05);
+      }
+
+      .btn.danger:hover {
+        border-color: #e87a7a;
+        color: #e87a7a;
+        background: rgba(232, 122, 122, 0.05);
+      }
+
+      /* ── GRID ── */
+      .grid-section {
+        padding: clamp(1.5rem, 3vw, 2.5rem) clamp(1.5rem, 5vw, 4rem);
+      }
+
+      .grid-label {
+        font-size: 0.62rem;
+        color: var(--muted);
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .grid-label::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: var(--border);
+      }
+
+      #checkbox-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(36px, 1fr));
+        gap: 5px;
+      }
+
+      /* ── CHECKBOX ITEMS (plain <input> styling) ── */
+      #checkbox-grid input[type="checkbox"] {
+        appearance: none;
+        -webkit-appearance: none;
+        width: 100%;
+        aspect-ratio: 1;
+        border: 1px solid var(--border);
+        border-radius: 5px;
+        background: var(--surface);
+        cursor: crosshair;
+        position: relative;
+        transition:
+          border-color 0.15s,
+          background 0.15s,
+          box-shadow 0.15s,
+          transform 0.1s;
+        display: grid;
+        place-items: center;
+        flex-shrink: 0;
+      }
+
+      #checkbox-grid input[type="checkbox"]:hover {
+        border-color: var(--muted);
+        transform: scale(1.08);
+        background: rgba(232, 201, 122, 0.06);
+        z-index: 2;
+      }
+
+      #checkbox-grid input[type="checkbox"]:checked {
+        border-color: var(--accent);
+        background: rgba(232, 201, 122, 0.08);
+        box-shadow:
+          0 0 0 1px rgba(232, 201, 122, 0.2),
+          inset 0 0 12px rgba(232, 201, 122, 0.05);
+      }
+
+      #checkbox-grid input[type="checkbox"]::after {
+        content: "✓";
+        color: var(--check);
+        font-size: 14px;
+        line-height: 1;
+        font-family: var(--font-mono);
+        opacity: 0;
+        transform: scale(0.5) rotate(-10deg);
+        transition:
+          opacity 0.15s,
+          transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        display: block;
+      }
+
+      #checkbox-grid input[type="checkbox"]:checked::after {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
+      }
+
+      /* ── POP ANIMATION ── */
+      @keyframes pop {
+        0% {
+          transform: scale(1);
+        }
+        40% {
+          transform: scale(1.22);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      #checkbox-grid input[type="checkbox"].popping {
+        animation: pop 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+
+      /* ── TOAST ── */
+      #toast {
+        position: fixed;
+        bottom: 2rem;
+        left: 50%;
+        transform: translateX(-50%) translateY(120%);
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 0.6rem 1.25rem;
+        font-size: 0.72rem;
+        color: var(--text);
+        letter-spacing: 0.06em;
+        z-index: 200;
+        transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+        pointer-events: none;
+      }
+
+      #toast.show {
+        transform: translateX(-50%) translateY(0);
+      }
+
+      /* ── FOOTER ── */
+      footer {
+        padding: 2rem clamp(1.5rem, 5vw, 4rem);
+        border-top: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 0.65rem;
+        color: var(--muted);
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        flex-wrap: wrap;
+        gap: 1rem;
+      }
+
+      /* ── LOADING SKELETON ── */
+      .skeleton {
+        border-radius: 5px;
+        background: linear-gradient(
+          90deg,
+          var(--surface) 25%,
+          var(--border) 50%,
+          var(--surface) 75%
+        );
+        background-size: 200% 100%;
+        animation: shimmer 1.4s infinite;
+        aspect-ratio: 1;
+      }
+
+      @keyframes shimmer {
+        0% {
+          background-position: 200% 0;
+        }
+        100% {
+          background-position: -200% 0;
+        }
+      }
+
+      /* ── RECONNECTING OVERLAY ── */
+      #overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(11, 12, 15, 0.85);
+        backdrop-filter: blur(4px);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 1rem;
+        z-index: 80;
+        font-family: var(--font-mono);
+        color: var(--dim);
+        font-size: 0.8rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      #overlay.show {
+        display: flex;
+      }
+
+      .spinner {
+        width: 32px;
+        height: 32px;
+        border: 2px solid var(--border);
+        border-top-color: var(--accent);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* ── RESPONSIVE ── */
+      @media (max-width: 600px) {
+        .hero {
+          grid-template-columns: 1fr;
+        }
+        .hero-stats {
+          align-items: flex-start;
+          flex-direction: row;
+          flex-wrap: wrap;
+        }
+        #checkbox-grid {
+          grid-template-columns: repeat(auto-fill, minmax(28px, 1fr));
+          gap: 4px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- HEADER -->
+    <header>
+      <div class="logo">
+        The Thousand Boxes
+        <span>Live · Shared</span>
+      </div>
+      <div class="header-meta">
+        <div class="pill" id="ws-pill">
+          <div class="dot" id="ws-dot"></div>
+          <span id="ws-status">connecting</span>
+        </div>
+        <div class="pill">
+          <div class="dot live"></div>
+          <span id="client-count">— online</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- HERO -->
+    <section class="hero">
+      <div>
+        <h1 class="hero-title">
+          One thousand<br />
+          <em>shared squares.</em>
+        </h1>
+        <p class="hero-sub">
+          Real-time · WebSocket sync · Redis-backed persistence<br />
+          Every check is felt by everyone, everywhere.
+        </p>
+      </div>
+      <div class="hero-stats">
+        <div class="stat-block">
+          <div class="stat-num" id="checked-count">0</div>
+          <div class="stat-label">checked</div>
+        </div>
+        <div class="stat-block">
+          <div class="stat-num accent2" id="unchecked-count">1000</div>
+          <div class="stat-label">unchecked</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- GRID -->
+    <section class="grid-section">
+      <div class="grid-label">1000 checkboxes</div>
+      <div id="checkbox-grid"></div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+      <span>WebSocket + Redis · Node.js</span>
+      <span id="footer-stat">0 / 1000 checked</span>
+      <span>State persists across sessions</span>
+    </footer>
+
+    <!-- TOAST -->
+    <div id="toast"></div>
+
+    <!-- RECONNECT OVERLAY -->
+    <div id="overlay">
+      <div class="spinner"></div>
+      <span>Reconnecting…</span>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const container = document.getElementById("checkbox-grid");
+
+      const CHECKBOX_COUNT = 1000;
+
+      new Array(CHECKBOX_COUNT).fill(null).forEach((_, index) => {
+        const input = document.createElement("input");
+        input.type = "checkbox";
+        input.addEventListener("change", (event) => {
+          const checked = event.target.checked;
+          console.log("Checkbox changed", { index, checked });
+        });
+        container.appendChild(input);
+      });
+    </script>
+  </body>
+</html>

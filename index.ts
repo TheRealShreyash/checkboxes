@@ -1,14 +1,30 @@
 import { createServer } from "node:http";
-import express from "express";
+import path from "node:path";
 import "dotenv/config";
+import express from "express";
+import { Server } from "socket.io";
 
 async function main() {
+  const PORT = process.env.PORT ?? 8080;
   const app = express();
   const server = createServer(app);
-  const PORT = process.env.PORT ?? 8080;
+  const io = new Server();
+
+  io.attach(server);
+  // Socket handlers
+  io.on("connection", (socket) => {
+    console.log(`Socket connected ${{ id: socket.id }}`);
+  });
+
+  // Express handlers
+  app.use(express.static(path.resolve("./public")));
 
   app.get("/health", (req, res) => {
     res.json({ healthy: true });
+  });
+
+  app.get("/", (req, res) => {
+    res.sendFile("index.html");
   });
 
   server.listen(PORT, () => {
@@ -16,4 +32,4 @@ async function main() {
   });
 }
 
-main()
+main();

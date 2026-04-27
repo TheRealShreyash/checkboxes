@@ -4,6 +4,12 @@ import "dotenv/config";
 import express from "express";
 import { Server } from "socket.io";
 
+const CHECKBOX_SIZE = 1000;
+
+const state = {
+  checkboxes: new Array(CHECKBOX_SIZE).fill(false),
+};
+
 async function main() {
   const PORT = process.env.PORT ?? 8080;
   const app = express();
@@ -17,6 +23,7 @@ async function main() {
     socket.on("client:checkbox:changed", (data) => {
       console.log(`[Socket: ${socket.id}]`, data);
       io.emit("server:checkbox:changed", data); // Server initiated event
+      state.checkboxes[data.index] = data.checked;
     });
   });
 
@@ -29,6 +36,10 @@ async function main() {
 
   app.get("/", (req, res) => {
     res.sendFile("index.html");
+  });
+
+  app.get("/state", (req, res) => {
+    res.json({ checkboxes: state.checkboxes });
   });
 
   server.listen(PORT, () => {

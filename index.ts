@@ -14,6 +14,10 @@ async function main() {
   // Socket handlers
   io.on("connection", (socket) => {
     console.log(`Socket connected ${{ id: socket.id }}`);
+    socket.on("client:checkbox:changed", (data) => {
+      console.log(`[Socket: ${socket.id}]`, data);
+      io.emit("server:checkbox:changed", data); // Server initiated event
+    });
   });
 
   // Express handlers

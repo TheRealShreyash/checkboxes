@@ -711,7 +711,7 @@
         </div>
         <div class="status-pill connected">
           <div class="status-dot live"></div>
-          <span id="client-count">— online</span>
+          <span id="client-count">1 online</span>
         </div>
       </div>
     </header>
@@ -879,6 +879,11 @@
         dot.classList.add("live");
         status.textContent = "connected";
         document.getElementById("overlay").classList.remove("show");
+      });
+
+      socket.on("server:client:count", ({ count }) => {
+        console.log(count)
+        document.getElementById("client-count").textContent = `${count} online`;
       });
 
       socket.on("disconnect", () => {

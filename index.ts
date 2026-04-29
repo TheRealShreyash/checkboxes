@@ -22,14 +22,20 @@ async function main() {
     if (channel === "internal-server:checkbox:changed") {
       const { index, checked } = JSON.parse(message);
 
-      // state.checkboxes[index] = checked;
-
       io.emit("server:checkbox:changed", { index, checked });
     }
   });
   // Socket handlers
   io.on("connection", (socket) => {
     console.log(`Socket connected ${{ id: socket.id }}`);
+
+    io.emit("server:client:count", { count: io.engine.clientsCount });
+
+    socket.on("disconnect", () => {
+      rateLimitingHashMap.delete(socket.id);
+      io.emit("server:client:count", { count: io.engine.clientsCount });
+    });
+
     socket.on("client:checkbox:changed", async (data) => {
       console.log(`[Socket: ${socket.id}]`, data);
 

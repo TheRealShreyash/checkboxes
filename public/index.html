@@ -589,7 +589,7 @@
       window.addEventListener("load", async () => {
         const response = await fetch("/state", { method: "GET" });
         const data = await response.json();
-        // console.log(data)
+        console.log(data);
 
         if (data && data.checkboxes) {
           data.checkboxes.forEach((serverValue, index) => {

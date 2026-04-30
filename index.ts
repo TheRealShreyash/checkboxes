@@ -7,8 +7,8 @@ import { publisher, redis, subscriber } from "./redis-connection";
 import authRouter from "./modules/auth/auth.routes";
 import checkboxRouter from "./modules/checkbox/checkbox.routes";
 
-const CHECKBOX_SIZE = 1000;
-const CHECKBOX_STATE_KEY = "checkbox-state";
+const CHECKBOX_SIZE = parseInt(process.env.CHECKBOX_SIZE!) || 1000;
+const CHECKBOX_STATE_KEY = process.env.CHECKBOX_STATE_KEY! || "checkbox-state";
 const rateLimitingHashMap = new Map();
 
 async function main() {

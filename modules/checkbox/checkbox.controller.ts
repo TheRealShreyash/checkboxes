@@ -6,7 +6,7 @@ export default class CheckboxController {
   static async handleState(_: Request, res: Response) {
     try {
       const data = await getState();
-      ApiResponse.ok(res, "State found", data);
+      ApiResponse.ok(res, "State found", { checkboxes: data });
     } catch (error) {
       ApiResponse.error(res, error);
     }

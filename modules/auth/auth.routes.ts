@@ -11,4 +11,6 @@ authRouter.get(
   AuthController.handleCallback,
 );
 
+authRouter.post("/refresh-token", AuthController.handleRefreshToken);
+
 export default authRouter;

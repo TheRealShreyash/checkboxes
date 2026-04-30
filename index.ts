@@ -4,8 +4,9 @@ import "dotenv/config";
 import express from "express";
 import { Server } from "socket.io";
 import { publisher, redis, subscriber } from "./redis-connection";
+import authRouter from "./modules/auth/auth.routes";
 
-const CHECKBOX_SIZE = 1000000;
+const CHECKBOX_SIZE = 1000;
 const CHECKBOX_STATE_KEY = "checkbox-state";
 const rateLimitingHashMap = new Map();
 
@@ -51,9 +52,8 @@ async function main() {
           rateLimitingHashMap.set(socket.id, Date.now());
           return;
         }
-      } else {
-        rateLimitingHashMap.set(socket.id, Date.now());
       }
+      rateLimitingHashMap.set(socket.id, Date.now());
 
       const existingState = await redis.get(CHECKBOX_STATE_KEY);
 
@@ -76,14 +76,63 @@ async function main() {
   });
 
   // Express handlers
-  app.use(express.static(path.resolve("./public")));
+  // app.use(express.static(path.resolve("./public")));
+  app.use("/auth", authRouter);
 
   app.get("/health", (req, res) => {
     res.json({ healthy: true });
   });
 
   app.get("/", (req, res) => {
-    res.sendFile("index.html");
+    res.sendFile(path.resolve("./public/index.html"));
+  });
+
+  app.get("/login", (req, res) => {
+    res.sendFile(path.resolve("./public/login.html"));
+  });
+  app.get("/signup", (req, res) => {
+    res.sendFile(path.resolve("./public/signup.html"));
+  });
+
+  app.get("/callback", async (req, res) => {
+    const { searchParams } = new URL(req.url);
+
+    const code = searchParams.get("code");
+    const state = searchParams.get("state");
+
+    const storedState = sessionStorage.getItem("oauth_state");
+
+    if (state !== storedState) {
+      res.status(500).json({ error: "Invalid state" });
+    }
+
+    sessionStorage.removeItem("oauth_state");
+
+    const response = await fetch("http://localhost:9090/auth/token", {
+      method: "POST",
+      body: JSON.stringify({
+        clientId: process.env.CLIENT_ID,
+        clientSecret: process.env.CLIENT_SECRET,
+        code,
+      }),
+    });
+
+    const tokens = await response.json();
+
+    const { accessToken, refreshToken } = tokens as {
+      accessToken: string;
+      refreshToken: string;
+    };
+
+    res.redirect("/");
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+      maxAge: 24 * 60 * 60 * 1000,
+    });
+    localStorage.setItem("accessToken", accessToken);
   });
 
   app.get("/state", async (req, res) => {

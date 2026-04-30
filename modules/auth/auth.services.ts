@@ -1,10 +1,9 @@
 import ApiError from "../../common/utils/api-error";
 
-export const callback = async (searchParams: URLSearchParams) => {
-  const code = searchParams.get("code");
-
+export const callback = async (code: string) => {
   const response = await fetch("http://localhost:9090/auth/token", {
     method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       clientId: process.env.CLIENT_ID,
       clientSecret: process.env.CLIENT_SECRET,

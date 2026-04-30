@@ -3,6 +3,8 @@ import path from "node:path";
 import "dotenv/config";
 import express from "express";
 import { Server } from "socket.io";
+import cors from "cors";
+import cookieParser from "cookie-parser";
 import { publisher, redis, subscriber } from "./redis-connection";
 import authRouter from "./modules/auth/auth.routes";
 import checkboxRouter from "./modules/checkbox/checkbox.routes";
@@ -77,6 +79,8 @@ async function main() {
   });
 
   // Express handlers
+  app.use(cors({ origin: "http://localhost:9090", credentials: true }));
+  app.use(cookieParser());
   app.use("/auth", authRouter);
   app.use("/checkbox", checkboxRouter);
 

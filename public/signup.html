@@ -1,0 +1,893 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign Up · 1M Checkboxes</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #06070a;
+        --surface: #0e0f14;
+        --surface2: #13151c;
+        --border: #1c1f2b;
+        --border2: #252837;
+        --muted: #363a4e;
+        --dim: #555970;
+        --text: #bfc3d4;
+        --text-bright: #e8ebf5;
+        --accent: #00e5ff;
+        --accent-dim: rgba(0, 229, 255, 0.12);
+        --accent-glow: rgba(0, 229, 255, 0.3);
+        --warn: #ff6b35;
+        --warn-dim: rgba(255, 107, 53, 0.12);
+        --warn-border: rgba(255, 107, 53, 0.4);
+        --success: #39d98a;
+        --success-dim: rgba(57, 217, 138, 0.1);
+        --font-mono: "Space Mono", monospace;
+        --font-disp: "Syne", sans-serif;
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: var(--font-mono);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        cursor: default;
+      }
+
+      body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background: repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 2px,
+          rgba(0, 0, 0, 0.03) 2px,
+          rgba(0, 0, 0, 0.03) 4px
+        );
+        pointer-events: none;
+        z-index: 9999;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background: radial-gradient(
+          ellipse 60% 50% at 50% 0%,
+          rgba(0, 229, 255, 0.06) 0%,
+          transparent 70%
+        );
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      /* ── HEADER ── */
+      header {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        background: rgba(6, 7, 10, 0.9);
+        backdrop-filter: blur(20px);
+        border-bottom: 1px solid var(--border);
+        padding: 0 clamp(1.25rem, 4vw, 3.5rem);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 58px;
+        flex-shrink: 0;
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        text-decoration: none;
+      }
+
+      .logo-mark {
+        width: 28px;
+        height: 28px;
+        border: 1.5px solid var(--accent);
+        border-radius: 4px;
+        display: grid;
+        place-items: center;
+        box-shadow:
+          0 0 12px var(--accent-glow),
+          inset 0 0 8px rgba(0, 229, 255, 0.05);
+      }
+
+      .logo-mark::after {
+        content: "✓";
+        color: var(--accent);
+        font-size: 13px;
+        font-family: var(--font-mono);
+        text-shadow: 0 0 8px var(--accent);
+      }
+
+      .logo-text {
+        font-family: var(--font-disp);
+        font-weight: 800;
+        font-size: 1rem;
+        color: var(--text-bright);
+        letter-spacing: -0.02em;
+      }
+
+      .logo-text span {
+        color: var(--accent);
+        text-shadow: 0 0 12px var(--accent-glow);
+      }
+
+      .header-link {
+        font-size: 0.68rem;
+        color: var(--dim);
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        text-decoration: none;
+        border: 1px solid var(--border);
+        padding: 0.35rem 0.9rem;
+        border-radius: 4px;
+        background: var(--surface);
+        transition: all 0.2s;
+      }
+
+      .header-link:hover {
+        color: var(--accent);
+        border-color: var(--accent);
+        background: var(--accent-dim);
+      }
+
+      /* ── MAIN ── */
+      main {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 3rem 1.25rem;
+        position: relative;
+        z-index: 1;
+      }
+
+      .card {
+        width: 100%;
+        max-width: 460px;
+      }
+
+      .eyebrow {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        font-size: 0.62rem;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--accent);
+        margin-bottom: 1.25rem;
+      }
+
+      .eyebrow::before {
+        content: "";
+        width: 20px;
+        height: 1px;
+        background: var(--accent);
+        box-shadow: 0 0 6px var(--accent-glow);
+      }
+
+      h1 {
+        font-family: var(--font-disp);
+        font-weight: 800;
+        font-size: clamp(1.8rem, 4vw, 2.4rem);
+        color: var(--text-bright);
+        letter-spacing: -0.03em;
+        line-height: 1.1;
+        margin-bottom: 0.5rem;
+      }
+
+      h1 em {
+        font-style: italic;
+        color: var(--accent);
+        text-shadow: 0 0 20px var(--accent-glow);
+      }
+
+      .subtitle {
+        font-size: 0.72rem;
+        color: var(--dim);
+        letter-spacing: 0.06em;
+        margin-bottom: 2.5rem;
+        line-height: 1.7;
+      }
+
+      /* ── FORM ── */
+      .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+        margin-bottom: 1.1rem;
+      }
+
+      .form-group {
+        margin-bottom: 1.1rem;
+      }
+      .form-row .form-group {
+        margin-bottom: 0;
+      }
+
+      label {
+        display: block;
+        font-size: 0.62rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--dim);
+        margin-bottom: 0.45rem;
+      }
+
+      label .optional {
+        color: var(--muted);
+        font-size: 0.55rem;
+        letter-spacing: 0.08em;
+        margin-left: 0.4rem;
+      }
+
+      input[type="email"],
+      input[type="password"],
+      input[type="text"] {
+        width: 100%;
+        background: var(--surface);
+        border: 1px solid var(--border2);
+        border-radius: 6px;
+        padding: 0.75rem 1rem;
+        font-family: var(--font-mono);
+        font-size: 0.82rem;
+        color: var(--text-bright);
+        outline: none;
+        transition:
+          border-color 0.2s,
+          box-shadow 0.2s,
+          background 0.2s;
+        cursor: text;
+      }
+
+      input::placeholder {
+        color: var(--muted);
+      }
+
+      input:focus {
+        border-color: var(--accent);
+        background: var(--surface2);
+        box-shadow:
+          0 0 0 3px rgba(0, 229, 255, 0.08),
+          0 0 12px rgba(0, 229, 255, 0.04);
+      }
+
+      input.error {
+        border-color: var(--warn-border);
+        box-shadow: 0 0 0 3px var(--warn-dim);
+      }
+
+      .field-error {
+        font-size: 0.62rem;
+        color: var(--warn);
+        letter-spacing: 0.06em;
+        margin-top: 0.4rem;
+        display: none;
+      }
+
+      .field-error.show {
+        display: block;
+      }
+
+      /* password strength */
+      .strength-wrap {
+        margin-top: 0.6rem;
+        display: none;
+      }
+
+      .strength-wrap.show {
+        display: block;
+      }
+
+      .strength-bar {
+        height: 2px;
+        background: var(--border);
+        border-radius: 2px;
+        overflow: hidden;
+        margin-bottom: 0.35rem;
+      }
+
+      .strength-fill {
+        height: 100%;
+        border-radius: 2px;
+        transition:
+          width 0.3s,
+          background 0.3s;
+        width: 0%;
+      }
+
+      .strength-label {
+        font-size: 0.58rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--dim);
+      }
+
+      /* divider */
+      .divider {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin: 1.75rem 0;
+      }
+
+      .divider::before,
+      .divider::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: var(--border);
+      }
+
+      .divider span {
+        font-size: 0.6rem;
+        color: var(--muted);
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+
+      /* ── BUTTONS ── */
+      .btn-iris {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.65rem;
+        padding: 0.85rem 1.5rem;
+        background: var(--accent);
+        color: #06070a;
+        border: none;
+        border-radius: 6px;
+        font-family: var(--font-disp);
+        font-weight: 700;
+        font-size: 0.9rem;
+        letter-spacing: 0.01em;
+        cursor: pointer;
+        transition: all 0.2s;
+        box-shadow:
+          0 0 20px rgba(0, 229, 255, 0.25),
+          0 0 40px rgba(0, 229, 255, 0.1);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .btn-iris::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 0.15) 0%,
+          transparent 60%
+        );
+        pointer-events: none;
+      }
+
+      .btn-iris:hover {
+        transform: translateY(-1px);
+        box-shadow:
+          0 0 30px rgba(0, 229, 255, 0.4),
+          0 0 60px rgba(0, 229, 255, 0.15);
+      }
+
+      .btn-iris:active {
+        transform: translateY(0);
+      }
+      .btn-iris:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .iris-icon {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        border: 2px solid rgba(6, 7, 10, 0.5);
+        display: grid;
+        place-items: center;
+        flex-shrink: 0;
+      }
+
+      .iris-icon::after {
+        content: "";
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: rgba(6, 7, 10, 0.6);
+      }
+
+      /* terms */
+      .terms {
+        font-size: 0.62rem;
+        color: var(--muted);
+        letter-spacing: 0.04em;
+        text-align: center;
+        margin-top: 1rem;
+        line-height: 1.7;
+      }
+
+      .terms a {
+        color: var(--dim);
+        text-decoration: underline;
+        text-underline-offset: 2px;
+        transition: color 0.2s;
+      }
+
+      .terms a:hover {
+        color: var(--accent);
+      }
+
+      /* ── TOAST SYSTEM ── */
+      #toast-container {
+        position: fixed;
+        bottom: 1.5rem;
+        right: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+        z-index: 1000;
+        pointer-events: none;
+      }
+
+      .toast {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        background: var(--surface2);
+        border: 1px solid var(--border2);
+        font-size: 0.72rem;
+        letter-spacing: 0.04em;
+        line-height: 1.5;
+        max-width: 320px;
+        pointer-events: all;
+        transform: translateX(120%);
+        opacity: 0;
+        transition:
+          transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+          opacity 0.25s;
+        cursor: pointer;
+        position: relative;
+      }
+
+      .toast.show {
+        transform: translateX(0);
+        opacity: 1;
+      }
+      .toast.hiding {
+        transform: translateX(120%);
+        opacity: 0;
+        transition:
+          transform 0.25s ease-in,
+          opacity 0.2s;
+      }
+
+      .toast-icon {
+        font-size: 1rem;
+        line-height: 1;
+        flex-shrink: 0;
+        margin-top: 0.05rem;
+      }
+      .toast-body {
+        flex: 1;
+      }
+      .toast-title {
+        font-family: var(--font-disp);
+        font-weight: 700;
+        font-size: 0.78rem;
+        margin-bottom: 0.15rem;
+      }
+      .toast-msg {
+        color: var(--dim);
+      }
+
+      .toast.error {
+        border-color: var(--warn-border);
+        background: #0f0d0c;
+      }
+      .toast.error .toast-title {
+        color: var(--warn);
+      }
+      .toast.success {
+        border-color: rgba(57, 217, 138, 0.35);
+        background: #0a0f0d;
+      }
+      .toast.success .toast-title {
+        color: var(--success);
+      }
+      .toast.info {
+        border-color: rgba(0, 229, 255, 0.25);
+      }
+      .toast.info .toast-title {
+        color: var(--accent);
+      }
+
+      .toast-progress {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 2px;
+        border-radius: 0 0 8px 8px;
+        width: 100%;
+        transform-origin: left;
+        transition: transform linear;
+      }
+
+      .toast.error .toast-progress {
+        background: var(--warn);
+      }
+      .toast.success .toast-progress {
+        background: var(--success);
+      }
+      .toast.info .toast-progress {
+        background: var(--accent);
+      }
+
+      /* ── CARD FOOTER ── */
+      .card-footer {
+        margin-top: 2rem;
+        text-align: center;
+        font-size: 0.68rem;
+        color: var(--dim);
+        letter-spacing: 0.06em;
+      }
+
+      .card-footer a {
+        color: var(--accent);
+        text-decoration: none;
+        border-bottom: 1px solid transparent;
+        transition: border-color 0.2s;
+      }
+
+      .card-footer a:hover {
+        border-color: var(--accent);
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      .spin {
+        display: inline-block;
+        width: 14px;
+        height: 14px;
+        border: 2px solid rgba(6, 7, 10, 0.3);
+        border-top-color: #06070a;
+        border-radius: 50%;
+        animation: spin 0.7s linear infinite;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <a href="/" class="logo">
+        <div class="logo-mark"></div>
+        <div class="logo-text"><span>1M</span> Checkboxes</div>
+      </a>
+      <a href="/login" class="header-link">Log in</a>
+    </header>
+
+    <main>
+      <div class="card">
+        <div class="eyebrow">Create account</div>
+        <h1>Join the<br /><em>grid.</em></h1>
+        <p class="subtitle">
+          One account. One million checkboxes. Infinite possibilities.
+        </p>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="firstName">First name</label>
+            <input
+              type="text"
+              id="firstName"
+              name="firstName"
+              placeholder="Ada"
+              autocomplete="given-name"
+            />
+            <div class="field-error" id="firstName-error">
+              First name is required.
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="lastName"
+              >Last name <span class="optional">optional</span></label
+            >
+            <input
+              type="text"
+              id="lastName"
+              name="lastName"
+              placeholder="Lovelace"
+              autocomplete="family-name"
+            />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email address</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            placeholder="you@example.com"
+            autocomplete="email"
+          />
+          <div class="field-error" id="email-error">
+            Please enter a valid email address.
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            placeholder="••••••••"
+            autocomplete="new-password"
+            oninput="updateStrength(this.value)"
+          />
+          <div class="field-error" id="password-error">
+            Password must be at least 8 characters.
+          </div>
+          <div class="strength-wrap" id="strength-wrap">
+            <div class="strength-bar">
+              <div class="strength-fill" id="strength-fill"></div>
+            </div>
+            <div class="strength-label" id="strength-label">Weak</div>
+          </div>
+        </div>
+
+        <div class="divider"><span>create account with</span></div>
+
+        <button class="btn-iris" id="signup-btn" onclick="handleSignup()">
+          <div class="iris-icon"></div>
+          Sign up with Iris
+        </button>
+
+        <p class="terms">
+          By signing up you agree to our <a href="#">Terms of Service</a> and
+          <a href="#">Privacy Policy</a>.
+        </p>
+
+        <div class="card-footer">
+          Already have an account? <a href="/login">Log in</a>
+        </div>
+      </div>
+    </main>
+
+    <div id="toast-container"></div>
+
+    <script>
+      // ── TOAST SYSTEM ──
+      // Call this anywhere to show a toast:
+      //   showToast('error',   'Rate limited',   'Slow down! Max 5 signups/min per IP.')
+      //   showToast('success', 'Account created', 'Welcome to the grid!')
+      //   showToast('info',    'Check your email', 'We sent a verification link.')
+      function showToast(type, title, message, duration = 4000) {
+        const container = document.getElementById("toast-container");
+        const toast = document.createElement("div");
+        toast.className = `toast ${type}`;
+        const icons = { error: "⚠", success: "✓", info: "ⓘ" };
+
+        toast.innerHTML = `
+          <div class="toast-icon">${icons[type] ?? "ⓘ"}</div>
+          <div class="toast-body">
+            <div class="toast-title">${title}</div>
+            <div class="toast-msg">${message}</div>
+          </div>
+          <div class="toast-progress"></div>
+        `;
+
+        container.appendChild(toast);
+        requestAnimationFrame(() =>
+          requestAnimationFrame(() => toast.classList.add("show")),
+        );
+
+        const bar = toast.querySelector(".toast-progress");
+        bar.style.transition = `transform ${duration}ms linear`;
+        requestAnimationFrame(() =>
+          requestAnimationFrame(() => {
+            bar.style.transform = "scaleX(0)";
+          }),
+        );
+
+        const dismiss = () => {
+          toast.classList.add("hiding");
+          toast.addEventListener("transitionend", () => toast.remove(), {
+            once: true,
+          });
+        };
+
+        toast.addEventListener("click", dismiss);
+        setTimeout(dismiss, duration);
+        return toast;
+      }
+
+      // ── PASSWORD STRENGTH ──
+      function updateStrength(val) {
+        const wrap = document.getElementById("strength-wrap");
+        const fill = document.getElementById("strength-fill");
+        const label = document.getElementById("strength-label");
+
+        if (!val) {
+          wrap.classList.remove("show");
+          return;
+        }
+        wrap.classList.add("show");
+
+        let score = 0;
+        if (val.length >= 8) score++;
+        if (val.length >= 12) score++;
+        if (/[A-Z]/.test(val) && /[a-z]/.test(val)) score++;
+        if (/\d/.test(val)) score++;
+        if (/[^A-Za-z0-9]/.test(val)) score++;
+
+        const levels = [
+          { pct: "20%", color: "#e87a7a", text: "Very weak" },
+          { pct: "40%", color: "var(--warn)", text: "Weak" },
+          { pct: "60%", color: "#e8c97a", text: "Fair" },
+          { pct: "80%", color: "var(--accent)", text: "Strong" },
+          { pct: "100%", color: "var(--success)", text: "Very strong" },
+        ];
+
+        const lvl = levels[Math.min(score, 4)];
+        fill.style.width = lvl.pct;
+        fill.style.background = lvl.color;
+        label.textContent = lvl.text;
+        label.style.color = lvl.color;
+      }
+
+      // ── VALIDATION ──
+      function validateEmail(val) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim());
+      }
+
+      function setFieldError(inputId, errorId, show) {
+        const input = document.getElementById(inputId);
+        const error = errorId ? document.getElementById(errorId) : null;
+        input.classList.toggle("error", show);
+        if (error) error.classList.toggle("show", show);
+        return !show;
+      }
+
+      // ── SIGN UP WITH IRIS ──
+      async function handleSignup() {
+        const firstName = document.getElementById("firstName").value.trim();
+        const lastName = document.getElementById("lastName").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value;
+
+        let valid = true;
+        valid =
+          setFieldError("firstName", "firstName-error", !firstName) && valid;
+        valid =
+          setFieldError("email", "email-error", !validateEmail(email)) && valid;
+        valid =
+          setFieldError("password", "password-error", password.length < 8) &&
+          valid;
+
+        if (!valid) {
+          showToast(
+            "error",
+            "Missing fields",
+            "Please fill in all required fields.",
+          );
+          return;
+        }
+
+        const btn = document.getElementById("signup-btn");
+        btn.disabled = true;
+        btn.innerHTML = `<div class="spin"></div> Creating account…`;
+
+        try {
+          // 👇 Replace with your actual signup endpoint
+          const res = await fetch("/auth/signup", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              firstName,
+              lastName: lastName || undefined,
+              email,
+              password,
+            }),
+          });
+
+          if (res.status === 429) {
+            // Rate limit — emit this from your backend middleware
+            showToast(
+              "error",
+              "Rate limited",
+              "Too many signup attempts. Please wait a moment.",
+            );
+            return;
+          }
+
+          if (res.status === 409) {
+            setFieldError("email", "email-error", true);
+            document.getElementById("email-error").textContent =
+              "An account with this email already exists.";
+            showToast("error", "Email taken", "Try logging in instead.");
+            return;
+          }
+
+          if (!res.ok) {
+            const data = await res.json().catch(() => ({}));
+            showToast(
+              "error",
+              "Signup failed",
+              data.message ?? "Something went wrong.",
+            );
+            return;
+          }
+
+          showToast(
+            "success",
+            "Welcome to the grid!",
+            "Account created. Redirecting…",
+          );
+          setTimeout(() => {
+            window.location.href = "/";
+          }, 1400);
+        } catch (err) {
+          showToast(
+            "error",
+            "Network error",
+            "Could not reach the server. Try again.",
+          );
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = `<div class="iris-icon"></div> Sign up with Iris`;
+        }
+      }
+
+      // clear errors on input
+      ["firstName", "email"].forEach((id) => {
+        document
+          .getElementById(id)
+          .addEventListener("input", () =>
+            setFieldError(id, `${id}-error`, false),
+          );
+      });
+      document
+        .getElementById("password")
+        .addEventListener("input", () =>
+          setFieldError("password", "password-error", false),
+        );
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") handleSignup();
+      });
+    </script>
+  </body>
+</html>

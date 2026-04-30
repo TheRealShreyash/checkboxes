@@ -882,7 +882,6 @@
       });
 
       socket.on("server:client:count", ({ count }) => {
-        console.log(count)
         document.getElementById("client-count").textContent = `${count} online`;
       });
 
@@ -897,6 +896,14 @@
       });
 
       window.addEventListener("load", async () => {
+        fetchStateFromServer();
+      });
+
+      async function fetchStateFromServer() {
+        while (container.firstChild) {
+          container.removeChild(container.firstChild);
+        }
+
         for (let i = 0; i < 200; i++) {
           const sk = document.createElement("div");
           sk.className = "skeleton";
@@ -924,6 +931,7 @@
               input.addEventListener("change", (e) => {
                 const checked = e.target.checked;
                 socket.emit("client:checkbox:changed", { index, checked });
+                fetchStateFromServer();
 
                 input.classList.remove("popping");
                 void input.offsetWidth;
@@ -951,7 +959,7 @@
             0,
           );
         }
-      });
+      }
     </script>
   </body>
 </html>

@@ -911,7 +911,7 @@
         }
 
         try {
-          const response = await fetch("/state", { method: "GET" });
+          const response = await fetch("/checkbox/state", { method: "GET" });
           if (!response.ok) throw new Error(`HTTP ${response.status}`);
           const data = await response.json();
 

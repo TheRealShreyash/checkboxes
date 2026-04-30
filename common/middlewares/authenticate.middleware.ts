@@ -1,4 +1,4 @@
-import type { Request, Response, NextFunction } from "express";
+import type { Response, NextFunction } from "express";
 import ApiError from "../utils/api-error";
 import ApiResponse from "../utils/api-response";
 import { verifyAccessToken } from "../../modules/auth/utils/token";

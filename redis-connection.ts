@@ -9,5 +9,4 @@ function createRedisConnection() {
 
 export const publisher = createRedisConnection();
 export const subscriber = createRedisConnection();
-
 export const redis = createRedisConnection();

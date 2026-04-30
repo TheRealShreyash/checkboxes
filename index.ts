@@ -5,6 +5,7 @@ import express from "express";
 import { Server } from "socket.io";
 import { publisher, redis, subscriber } from "./redis-connection";
 import authRouter from "./modules/auth/auth.routes";
+import checkboxRouter from "./modules/checkbox/checkbox.routes";
 
 const CHECKBOX_SIZE = 1000;
 const CHECKBOX_STATE_KEY = "checkbox-state";
@@ -77,6 +78,7 @@ async function main() {
 
   // Express handlers
   app.use("/auth", authRouter);
+  app.use("/checkbox", checkboxRouter);
 
   app.get("/health", (req, res) => {
     res.json({ healthy: true });
@@ -91,16 +93,6 @@ async function main() {
   });
   app.get("/signup", (req, res) => {
     res.sendFile(path.resolve("./public/signup.html"));
-  });
-  
-  app.get("/state", async (req, res) => {
-    const existingState = await redis.get(CHECKBOX_STATE_KEY);
-    if (existingState) {
-      const rawData = JSON.parse(existingState);
-      res.json({ checkboxes: rawData });
-    } else {
-      res.json({ checkboxes: new Array(CHECKBOX_SIZE).fill(false) });
-    }
   });
 
   server.listen(PORT, () => {

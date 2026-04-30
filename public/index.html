@@ -786,6 +786,44 @@
       // For rate limiting specifically:
       //   showToast("Rate Limited", "Too many requests — slow down!", "error")
 
+      function getAccessToken() {
+        return localStorage.getItem("accessToken");
+      }
+      function setAccessToken(token) {
+        return localStorage.setItem("accessToken", token);
+      }
+      function deleteAccessToken() {
+        return localStorage.removeItem("accessToken");
+      }
+
+      async function tryRefresh() {
+        try {
+          const res = await fetch("/auth/refresh-token", {
+            method: "POST",
+          });
+
+          if (!res.ok) return null;
+          const { accessToken, refreshToken } = await res.json();
+
+          setAccessToken(accessToken);
+          return accessToken;
+        } catch (error) {
+          return null;
+        }
+      }
+
+      async function requireAuth() {
+        let token = getAccessToken();
+
+        if (token) return token;
+
+        token = await tryRefresh();
+        if (token) return token;
+
+        window.location.href = "/login";
+        return null;
+      }
+
       const toastContainer = document.getElementById("toast-container");
 
       function showToast(title, message, type = "error", duration = 4000) {
@@ -896,10 +934,12 @@
       });
 
       window.addEventListener("load", async () => {
-        fetchStateFromServer();
+        const token = await requireAuth();
+        if (!token) return;
+        fetchStateFromServer(token);
       });
 
-      async function fetchStateFromServer() {
+      async function fetchStateFromServer(token) {
         while (container.firstChild) {
           container.removeChild(container.firstChild);
         }
@@ -911,9 +951,12 @@
         }
 
         try {
-          const response = await fetch("/checkbox/state", { method: "GET" });
+          const response = await fetch("/checkbox/state", {
+            method: "GET",
+            headers: { Authorization: `Bearer ${token}` },
+          });
           if (!response.ok) throw new Error(`HTTP ${response.status}`);
-          const data = await response.json();
+          const { data } = await response.json();
 
           container.innerHTML = "";
           let count = 0;
@@ -931,7 +974,7 @@
               input.addEventListener("change", (e) => {
                 const checked = e.target.checked;
                 socket.emit("client:checkbox:changed", { index, checked });
-                fetchStateFromServer();
+                fetchStateFromServer(token);
 
                 input.classList.remove("popping");
                 void input.offsetWidth;

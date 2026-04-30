@@ -786,29 +786,12 @@
       // For rate limiting specifically:
       //   showToast("Rate Limited", "Too many requests — slow down!", "error")
 
-      function getAccessToken() {
-        return localStorage.getItem("accessToken");
-      }
-      function setAccessToken(token) {
-        return localStorage.setItem("accessToken", token);
-      }
-      function deleteAccessToken() {
-        return localStorage.removeItem("accessToken");
-      }
-
       async function tryRefresh() {
         try {
-          const res = await fetch("/auth/refresh-token", {
-            method: "POST",
-          });
-
-          if (!res.ok) return null;
-          const { accessToken, refreshToken } = await res.json();
-
-          setAccessToken(accessToken);
-          return accessToken;
+          const res = await fetch("/auth/refresh-token", { method: "POST" });
+          return res.ok; // Backend sets new cookies in the response
         } catch (error) {
-          return null;
+          return false;
         }
       }
 
@@ -934,12 +917,10 @@
       });
 
       window.addEventListener("load", async () => {
-        const token = await requireAuth();
-        if (!token) return;
-        fetchStateFromServer(token);
+        fetchStateFromServer();
       });
 
-      async function fetchStateFromServer(token) {
+      async function fetchStateFromServer() {
         while (container.firstChild) {
           container.removeChild(container.firstChild);
         }
@@ -951,10 +932,16 @@
         }
 
         try {
-          const response = await fetch("/checkbox/state", {
-            method: "GET",
-            headers: { Authorization: `Bearer ${token}` },
-          });
+          const response = await fetch("/checkbox/state");
+
+          if (response.status === 401) {
+            const refreshed = await tryRefresh();
+            if (refreshed) {
+              return fetchStateFromServer();
+            } else {
+              window.location.href = "/login";
+            }
+          }
           if (!response.ok) throw new Error(`HTTP ${response.status}`);
           const { data } = await response.json();
 

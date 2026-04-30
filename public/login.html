@@ -569,6 +569,13 @@
           Your boxes are waiting. Pick up where you left off.
         </p>
 
+        <button class="btn-iris" id="login-btn" onclick="loginWithIris()">
+          <div class="iris-icon"></div>
+          Login with Iris
+        </button>
+
+        <div class="divider"><span>or continue with email</span></div>
+
         <div class="form-group">
           <label for="email">Email address</label>
           <input
@@ -596,13 +603,6 @@
             Password is required.
           </div>
         </div>
-
-        <div class="divider"><span>continue with</span></div>
-
-        <button class="btn-iris" id="login-btn" onclick="handleLogin()">
-          <div class="iris-icon"></div>
-          Login with Iris
-        </button>
 
         <button class="btn-secondary" onclick="handleEmailLogin()">
           Login with email
@@ -679,7 +679,13 @@
         return !show;
       }
 
-      // ── LOGIN WITH IRIS ──
+      // ── LOGIN WITH IRIS — just redirects to the OIDC provider ──
+      function loginWithIris() {
+        // Replace with your actual Iris OIDC authorization URL
+        window.location.href = "/auth/iris-login";
+      }
+
+      // ── LOGIN WITH EMAIL (form) ──
       async function handleLogin() {
         const email = document.getElementById("email").value;
         const password = document.getElementById("password").value;
@@ -784,7 +790,7 @@
 
       // submit on Enter
       document.addEventListener("keydown", (e) => {
-        if (e.key === "Enter") handleLogin();
+        if (e.key === "Enter") handleEmailLogin();
       });
     </script>
   </body>

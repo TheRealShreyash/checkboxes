@@ -5,24 +5,16 @@ import { verifyAccessToken } from "../../modules/auth/utils/token";
 import type { AuthenticatedRequest } from "../utils/interfaces";
 
 export const authenticate = () => {
-  return (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  return async (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction,
+  ) => {
     try {
-      const header = req.headers["authorization"];
-      if (!header) return next();
+      const token = req.cookies["accessToken"];
+      if (!token) throw ApiError.badRequest("No access token");
 
-      if (!header?.startsWith("Bearer")) {
-        throw ApiError.badRequest(
-          `Authorization header must start with bearer`,
-        );
-      }
-
-      const token = header.split(" ")[1];
-      if (!token)
-        throw ApiError.badRequest(
-          "Authorization header must start with Bearer followed by the token",
-        );
-
-      const user = verifyAccessToken(token);
+      const user = await verifyAccessToken(token);
       req.user = user;
 
       next();

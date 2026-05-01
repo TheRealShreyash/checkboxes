@@ -795,15 +795,24 @@
         }
       }
 
+      function redirectToLogin() {
+        window.location.href = `/login`;
+      }
+
       async function requireAuth() {
-        let token = getAccessToken();
+        try {
+          const res = await fetch("/auth/me");
+          if (res.ok) return true;
 
-        if (token) return token;
+          if (res.status === 401) {
+            const refreshed = await tryRefresh();
+            if (refreshed) return true;
+          }
+        } catch {
+          console.error("Auth check failed", error);
+        }
 
-        token = await tryRefresh();
-        if (token) return token;
-
-        window.location.href = "/login";
+        redirectToLogin();
         return null;
       }
 
@@ -849,7 +858,7 @@
       // ─── STATE & SOCKET ──────────────────────────────────────────────
       const socket = io();
       const container = document.getElementById("checkbox-grid");
-      const CHECKBOX_COUNT = 1000000;
+      const CHECKBOX_COUNT = 1000;
       let checkedCount = 0;
 
       function updateStats(count) {
@@ -863,7 +872,7 @@
         document.getElementById("progress-fill").style.width = pct + "%";
         document.getElementById("progress-pct").textContent = pct + "%";
         document.getElementById("footer-stat").textContent =
-          `${count.toLocaleString()} / 1,000,000 checked`;
+          `${count.toLocaleString()} / 1,000 checked`;
       }
 
       // Handle rate-limit / server errors — hook your backend errors here
@@ -917,6 +926,8 @@
       });
 
       window.addEventListener("load", async () => {
+        const authenticated = await requireAuth();
+        if (!authenticated) return;
         fetchStateFromServer();
       });
 
@@ -939,7 +950,7 @@
             if (refreshed) {
               return fetchStateFromServer();
             } else {
-              window.location.href = "/login";
+              redirectToLogin();
             }
           }
           if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -961,7 +972,7 @@
               input.addEventListener("change", (e) => {
                 const checked = e.target.checked;
                 socket.emit("client:checkbox:changed", { index, checked });
-                fetchStateFromServer(token);
+                fetchStateFromServer();
 
                 input.classList.remove("popping");
                 void input.offsetWidth;

@@ -65,4 +65,12 @@ export default class AuthController {
       `http://localhost:9090/auth/authenticate?clientId=${clientId}`,
     );
   }
+
+  static handleMe(_: Request, res: Response) {
+    try {
+      ApiResponse.ok(res, "Authenticated");
+    } catch (error) {
+      ApiResponse.error(res, error);
+    }
+  }
 }

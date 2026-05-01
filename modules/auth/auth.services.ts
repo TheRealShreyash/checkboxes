@@ -19,12 +19,16 @@ export const callback = async (code: string) => {
 };
 
 export const refreshTokens = async (refreshToken: string) => {
+  if (!refreshToken) throw ApiError.badRequest("Refresh token not provided");
+
   const res = await fetch("http://localhost:9090/auth/refresh-token", {
     method: "POST",
     body: JSON.stringify({
       refreshToken,
     }),
   });
+
+  if (!res.ok) throw ApiError.unauthorized("Failed to refresh tokens");
 
   const tokens = await res.json();
 

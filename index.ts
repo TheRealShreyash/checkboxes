@@ -31,7 +31,7 @@ async function main() {
   });
   // Socket handlers
   io.on("connection", (socket) => {
-    console.log(`Socket connected ${{ id: socket.id }}`);
+    console.log(`Socket connected ${socket.id}`);
 
     io.emit("server:client:count", { count: io.engine.clientsCount });
 
@@ -79,8 +79,14 @@ async function main() {
   });
 
   // Express handlers
-  app.use(cors({ origin: "http://localhost:9090", credentials: true }));
+  app.use(
+    cors({
+      origin: ["http://localhost:9090", "http://localhost:8080"],
+      credentials: true,
+    }),
+  );
   app.use(cookieParser());
+  app.use(express.json());
   app.use("/auth", authRouter);
   app.use("/checkbox", checkboxRouter);
 

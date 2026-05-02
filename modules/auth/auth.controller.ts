@@ -61,9 +61,9 @@ export default class AuthController {
   static async handleIrisLogin(_: Request, res: Response) {
     const clientId = process.env.CLIENT_ID!;
 
-    res.redirect(
-      `http://localhost:9090/auth/authenticate?clientId=${clientId}`,
-    );
+    const IrisAuthURL = process.env.IRIS_AUTH_URL!;
+
+    res.redirect(`${IrisAuthURL}/auth/authenticate?clientId=${clientId}`);
   }
 
   static handleMe(_: Request, res: Response) {

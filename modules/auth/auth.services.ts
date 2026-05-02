@@ -1,7 +1,8 @@
 import ApiError from "../../common/utils/api-error";
 
 export const callback = async (code: string) => {
-  const response = await fetch("http://localhost:9090/auth/token", {
+  const IrisAuthURL = process.env.IRIS_AUTH_URL!;
+  const response = await fetch(`${IrisAuthURL}/auth/token`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -20,8 +21,9 @@ export const callback = async (code: string) => {
 
 export const refreshTokens = async (refreshToken: string) => {
   if (!refreshToken) throw ApiError.badRequest("Refresh token not provided");
+  const IrisAuthURL = process.env.IRIS_AUTH_URL!;
 
-  const res = await fetch("http://localhost:9090/auth/refresh-token", {
+  const res = await fetch(`${IrisAuthURL}/auth/refresh-token`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({

@@ -23,6 +23,7 @@ export const refreshTokens = async (refreshToken: string) => {
 
   const res = await fetch("http://localhost:9090/auth/refresh-token", {
     method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       refreshToken,
     }),
@@ -30,7 +31,9 @@ export const refreshTokens = async (refreshToken: string) => {
 
   if (!res.ok) throw ApiError.unauthorized("Failed to refresh tokens");
 
-  const tokens = await res.json();
+  const { data } = (await res.json()) as {
+    data: { accessToken: string; refreshToken: string };
+  };
 
-  return tokens;
+  return data;
 };

@@ -33,12 +33,12 @@ export default class AuthController {
 
   static async handleRefreshToken(req: Request, res: Response) {
     try {
-      const refreshToken = req.cookies["refreshToken"];
-      const { accessToken, newRefreshToken } = (await refreshTokens(
-        refreshToken,
-      )) as { accessToken: string; newRefreshToken: string };
+      const oldRefreshToken = req.cookies["refreshToken"];
+      const { accessToken, refreshToken } = (await refreshTokens(
+        oldRefreshToken,
+      )) as { accessToken: string; refreshToken: string };
 
-      res.cookie("refreshToken", newRefreshToken, {
+      res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
         secure: false,
         sameSite: "strict",
@@ -58,7 +58,7 @@ export default class AuthController {
     }
   }
 
-  static async handleIrisLogin(req: Request, res: Response) {
+  static async handleIrisLogin(_: Request, res: Response) {
     const clientId = process.env.CLIENT_ID!;
 
     res.redirect(

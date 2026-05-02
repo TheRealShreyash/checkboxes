@@ -15,7 +15,7 @@ const CHECKBOX_SIZE = parseInt(process.env.CHECKBOX_SIZE!) || 1000;
 const CHECKBOX_STATE_KEY = process.env.CHECKBOX_STATE_KEY! || "checkbox-state";
 const RATE_LIMIT_TTL = 6;
 const RATE_LIMIT_KEY = (userId: string) =>
-  `${process.env.RATE_LIMIT_KEY}-${userId}` || `rate-limited-${userId}`;
+  `${process.env.RATE_LIMIT_KEY || "rate-limited"}-${userId}`;
 
 async function main() {
   const PORT = process.env.PORT ?? 8080;
@@ -98,7 +98,11 @@ async function main() {
   // Express handlers
   app.use(
     cors({
-      origin: ["http://localhost:9090", "http://localhost:8080"],
+      origin: [
+        `${process.env.IRIS_AUTH_URL!}`,
+        `${process.env.BASE_URL_1!}`,
+        `${process.env.BASE_URL_2!}`,
+      ],
       credentials: true,
     }),
   );

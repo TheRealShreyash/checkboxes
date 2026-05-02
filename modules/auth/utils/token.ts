@@ -3,7 +3,7 @@ import type { UserTokenPayload } from "../auth.models";
 import JwksClient from "jwks-rsa";
 
 const client = JwksClient({
-  jwksUri: "http://localhost:9090/auth/certs",
+  jwksUri: `${process.env.IRIS_AUTH_URL!}/auth/certs`,
   cache: true,
   cacheMaxAge: 86400,
 });

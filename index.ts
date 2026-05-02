@@ -61,7 +61,7 @@ async function main() {
     });
 
     socket.on("client:checkbox:changed", async (data) => {
-      console.log(`[Socket: ${socket.id}]`, data);
+      // console.log(`[Socket: ${socket.id}]`, data);
 
       const rateLimitKey = RATE_LIMIT_KEY(userId);
 

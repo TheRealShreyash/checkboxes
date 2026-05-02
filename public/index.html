@@ -820,9 +820,13 @@
 
           if (res.status === 401) {
             const refreshed = await tryRefresh();
-            if (refreshed) return true;
+            if (refreshed) {
+              // Reload so all subsequent requests use the new cookies cleanly
+              window.location.reload();
+              return null; // stop current execution, page is reloading
+            }
           }
-        } catch {
+        } catch (error) {
           console.error("Auth check failed", error);
         }
 
@@ -983,12 +987,8 @@
           const response = await fetch("/checkbox/state");
 
           if (response.status === 401) {
-            const refreshed = await tryRefresh();
-            if (refreshed) {
-              return fetchStateFromServer();
-            } else {
-              redirectToLogin();
-            }
+            redirectToLogin();
+            return;
           }
           if (!response.ok) throw new Error(`HTTP ${response.status}`);
           const { data } = await response.json();

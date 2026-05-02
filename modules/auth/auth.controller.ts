@@ -12,6 +12,8 @@ export default class AuthController {
         refreshToken: string;
       };
 
+      console.log(tokens)
+
       const isProduction = process.env.NODE_ENV?.toLowerCase() === "production";
 
       res.cookie("refreshToken", refreshToken, {
@@ -29,6 +31,7 @@ export default class AuthController {
 
       res.redirect("/");
     } catch (error) {
+      console.log(error)
       ApiResponse.error(res, error);
     }
   }

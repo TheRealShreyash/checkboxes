@@ -12,16 +12,18 @@ export default class AuthController {
         refreshToken: string;
       };
 
+      const isProduction = process.env.NODE_ENV?.toLowerCase() === "production";
+
       res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
-        secure: false,
-        sameSite: "lax",
+        secure: isProduction,
+        sameSite: isProduction ? "strict" : "lax",
         maxAge: 24 * 60 * 60 * 1000,
       });
       res.cookie("accessToken", accessToken, {
         httpOnly: true,
-        secure: false,
-        sameSite: "lax",
+        secure: isProduction,
+        sameSite: isProduction ? "strict" : "lax",
         maxAge: 15 * 60 * 1000,
       });
 
@@ -38,17 +40,19 @@ export default class AuthController {
         oldRefreshToken,
       )) as { accessToken: string; refreshToken: string };
 
+      const isProduction = process.env.NODE_ENV?.toLowerCase() === "production";
+
       res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
-        secure: false,
-        sameSite: "strict",
+        secure: isProduction,
+        sameSite: isProduction ? "strict" : "lax",
         maxAge: 24 * 60 * 60 * 1000,
       });
 
       res.cookie("accessToken", accessToken, {
         httpOnly: true,
-        secure: false,
-        sameSite: "lax",
+        secure: isProduction,
+        sameSite: isProduction ? "strict" : "lax",
         maxAge: 15 * 60 * 1000,
       });
 

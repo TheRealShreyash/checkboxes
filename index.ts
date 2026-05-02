@@ -5,13 +5,17 @@ import express from "express";
 import { Server } from "socket.io";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import cookie from "cookie";
 import { publisher, redis, subscriber } from "./redis-connection";
 import authRouter from "./modules/auth/auth.routes";
 import checkboxRouter from "./modules/checkbox/checkbox.routes";
+import { verifyAccessToken } from "./modules/auth/utils/token";
 
 const CHECKBOX_SIZE = parseInt(process.env.CHECKBOX_SIZE!) || 1000;
 const CHECKBOX_STATE_KEY = process.env.CHECKBOX_STATE_KEY! || "checkbox-state";
-const rateLimitingHashMap = new Map();
+const RATE_LIMIT_TTL = 6;
+const RATE_LIMIT_KEY = (userId: string) =>
+  `${process.env.RATE_LIMIT_KEY}-${userId}` || `rate-limited-${userId}`;
 
 async function main() {
   const PORT = process.env.PORT ?? 8080;
@@ -30,33 +34,46 @@ async function main() {
     }
   });
   // Socket handlers
-  io.on("connection", (socket) => {
+  io.on("connection", async (socket) => {
+    const cookies = cookie.parse(socket.handshake.headers.cookie || "");
+
+    const accessToken = cookies["accessToken"];
+
+    if (!accessToken) {
+      return socket.disconnect();
+    }
+
+    let userId: string;
+
+    try {
+      const user = await verifyAccessToken(accessToken);
+      userId = user.sub;
+    } catch (error) {
+      return socket.disconnect();
+    }
+
     console.log(`Socket connected ${socket.id}`);
 
     io.emit("server:client:count", { count: io.engine.clientsCount });
 
     socket.on("disconnect", () => {
-      rateLimitingHashMap.delete(socket.id);
       io.emit("server:client:count", { count: io.engine.clientsCount });
     });
 
     socket.on("client:checkbox:changed", async (data) => {
       console.log(`[Socket: ${socket.id}]`, data);
 
-      const lastOperationTime = rateLimitingHashMap.get(socket.id);
-      if (lastOperationTime) {
-        const timeElapsed = Date.now() - lastOperationTime;
-        if (timeElapsed < 5.5 * 1000) {
-          socket.emit("server:error", {
-            error: `Please wait`,
-            code: "RATE_LIMIT",
-          });
+      const rateLimitKey = RATE_LIMIT_KEY(userId);
 
-          rateLimitingHashMap.set(socket.id, Date.now());
-          return;
-        }
-      }
-      rateLimitingHashMap.set(socket.id, Date.now());
+      const isRateLimited = await redis.get(rateLimitKey);
+
+      if (isRateLimited)
+        return socket.emit("server:error", {
+          error: `Please wait`,
+          code: "RATE_LIMIT",
+        });
+
+      await redis.set(rateLimitKey, "1", "EX", RATE_LIMIT_TTL);
 
       const existingState = await redis.get(CHECKBOX_STATE_KEY);
 

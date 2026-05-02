@@ -12,28 +12,28 @@ export default class AuthController {
         refreshToken: string;
       };
 
-      console.log(tokens)
+      console.log(tokens);
 
       const isProduction = process.env.NODE_ENV?.toLowerCase() === "production";
 
-      console.log(isProduction)
+      console.log(isProduction);
 
       res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
         secure: isProduction,
-        sameSite: isProduction ? "strict" : "lax",
+        sameSite: "lax",
         maxAge: 24 * 60 * 60 * 1000,
       });
       res.cookie("accessToken", accessToken, {
         httpOnly: true,
         secure: isProduction,
-        sameSite: isProduction ? "strict" : "lax",
+        sameSite: "lax",
         maxAge: 15 * 60 * 1000,
       });
 
       res.redirect("/");
     } catch (error) {
-      console.log(error)
+      console.log(error);
       ApiResponse.error(res, error);
     }
   }
@@ -50,14 +50,14 @@ export default class AuthController {
       res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
         secure: isProduction,
-        sameSite: isProduction ? "strict" : "lax",
+        sameSite: "lax",
         maxAge: 24 * 60 * 60 * 1000,
       });
 
       res.cookie("accessToken", accessToken, {
         httpOnly: true,
         secure: isProduction,
-        sameSite: isProduction ? "strict" : "lax",
+        sameSite: "lax",
         maxAge: 15 * 60 * 1000,
       });
 

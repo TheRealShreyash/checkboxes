@@ -31,11 +31,15 @@ export const refreshTokens = async (refreshToken: string) => {
     }),
   });
 
+  console.log(res)
+
   if (!res.ok) throw ApiError.unauthorized("Failed to refresh tokens");
 
   const { data } = (await res.json()) as {
     data: { accessToken: string; refreshToken: string };
   };
+
+  console.log(data)
 
   return data;
 };

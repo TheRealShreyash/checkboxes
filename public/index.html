@@ -448,6 +448,17 @@
         animation: pop 0.24s cubic-bezier(0.34, 1.56, 0.64, 1);
       }
 
+      /* ── GRID LOCKED (rate limited) ── */
+      #checkbox-grid.grid-locked {
+        opacity: 0.4;
+        pointer-events: none;
+        cursor: not-allowed;
+      }
+
+      #checkbox-grid.grid-locked input[type="checkbox"] {
+        cursor: not-allowed;
+      }
+
       /* ── SKELETON ── */
       .skeleton {
         border-radius: 3px;
@@ -702,7 +713,7 @@
     <header>
       <div class="logo">
         <div class="logo-mark"></div>
-        <div class="logo-text">1M <span>Checkboxes</span></div>
+        <div class="logo-text">1K <span>Checkboxes</span></div>
       </div>
       <div class="header-right">
         <div class="status-pill" id="ws-pill">
@@ -711,7 +722,7 @@
         </div>
         <div class="status-pill connected">
           <div class="status-dot live"></div>
-          <span id="client-count">1 online</span>
+          <span id="client-count">- online</span>
         </div>
       </div>
     </header>
@@ -721,7 +732,7 @@
       <div>
         <div class="hero-eyebrow">Live · Shared · Real-time</div>
         <h1 class="hero-title">
-          One million<br />
+          One thousand<br />
           <span class="num">checkboxes.</span>
         </h1>
         <p class="hero-sub">
@@ -786,13 +797,16 @@
       // For rate limiting specifically:
       //   showToast("Rate Limited", "Too many requests — slow down!", "error")
 
+      let refreshPromise = null;
       async function tryRefresh() {
-        try {
-          const res = await fetch("/auth/refresh-token", { method: "POST" });
-          return res.ok; // Backend sets new cookies in the response
-        } catch (error) {
-          return false;
-        }
+        if (refreshPromise) return refreshPromise;
+        refreshPromise = fetch("/auth/refresh-token", { method: "POST" })
+          .then((res) => res.ok)
+          .catch(() => false)
+          .finally(() => {
+            refreshPromise = null;
+          });
+        return refreshPromise;
       }
 
       function redirectToLogin() {
@@ -856,10 +870,18 @@
       // ─────────────────────────────────────────────────────────────────
 
       // ─── STATE & SOCKET ──────────────────────────────────────────────
-      const socket = io();
+      let socket = null;
+      let lastChanged = null;
       const container = document.getElementById("checkbox-grid");
       const CHECKBOX_COUNT = 1000;
       let checkedCount = 0;
+
+      function setGridDisabled(disabled) {
+        container.querySelectorAll('input[type="checkbox"]').forEach((cb) => {
+          cb.disabled = disabled;
+        });
+        container.classList.toggle("grid-locked", disabled);
+      }
 
       function updateStats(count) {
         checkedCount = count;
@@ -875,59 +897,74 @@
           `${count.toLocaleString()} / 1,000 checked`;
       }
 
-      // Handle rate-limit / server errors — hook your backend errors here
-      socket.on("server:error", (data) => {
-        const msg = data?.message || "An error occurred. Please try again.";
-        const code = data?.code || "";
-
-        if (code === "RATE_LIMIT" || msg.toLowerCase().includes("rate")) {
-          showToast(
-            "Rate Limited",
-            "Too many requests — slow down a bit!",
-            "error",
-          );
-        } else {
-          showToast("Server Error", msg, "error");
-        }
-      });
-
-      socket.on("server:checkbox:changed", ({ index, checked }) => {
-        const input = document.getElementById(`checkbox-${index}`);
-        if (!input) return;
-        const was = input.checked;
-        input.checked = checked;
-        if (was !== checked) {
-          updateStats(checked ? checkedCount + 1 : checkedCount - 1);
-        }
-      });
-
-      socket.on("connect", () => {
-        const pill = document.getElementById("ws-pill");
-        const dot = document.getElementById("ws-dot");
-        const status = document.getElementById("ws-status");
-        pill.classList.add("connected");
-        dot.classList.add("live");
-        status.textContent = "connected";
-        document.getElementById("overlay").classList.remove("show");
-      });
-
-      socket.on("server:client:count", ({ count }) => {
-        document.getElementById("client-count").textContent = `${count} online`;
-      });
-
-      socket.on("disconnect", () => {
-        const pill = document.getElementById("ws-pill");
-        const dot = document.getElementById("ws-dot");
-        const status = document.getElementById("ws-status");
-        pill.classList.remove("connected");
-        dot.classList.remove("live");
-        status.textContent = "disconnected";
-        document.getElementById("overlay").classList.add("show");
-      });
-
       window.addEventListener("load", async () => {
         const authenticated = await requireAuth();
         if (!authenticated) return;
+
+        // Only connect socket after auth is confirmed
+        socket = io();
+
+        socket.on("server:checkbox:changed", ({ index, checked }) => {
+          const input = document.getElementById(`checkbox-${index}`);
+          if (!input) return;
+          const was = input.checked;
+          input.checked = checked;
+          if (was !== checked) {
+            updateStats(checked ? checkedCount + 1 : checkedCount - 1);
+          }
+        });
+
+        socket.on("connect", () => {
+          const pill = document.getElementById("ws-pill");
+          const dot = document.getElementById("ws-dot");
+          const status = document.getElementById("ws-status");
+          pill.classList.add("connected");
+          dot.classList.add("live");
+          status.textContent = "connected";
+          document.getElementById("overlay").classList.remove("show");
+        });
+
+        socket.on("server:client:count", ({ count }) => {
+          document.getElementById("client-count").textContent =
+            `${count} online`;
+        });
+
+        socket.on("disconnect", () => {
+          const pill = document.getElementById("ws-pill");
+          const dot = document.getElementById("ws-dot");
+          const status = document.getElementById("ws-status");
+          pill.classList.remove("connected");
+          dot.classList.remove("live");
+          status.textContent = "disconnected";
+          document.getElementById("overlay").classList.add("show");
+        });
+
+        socket.on("server:error", (data) => {
+          const msg = data?.error || data?.message || "An error occurred.";
+          const code = data?.code || "";
+          if (code === "RATE_LIMIT" || msg.toLowerCase().includes("rate")) {
+            // Revert the checkbox that triggered the rate limit
+            if (lastChanged) {
+              lastChanged.checked = !lastChanged.checked;
+              updateStats(
+                lastChanged.checked ? checkedCount + 1 : checkedCount - 1,
+              );
+              lastChanged = null;
+            }
+            // Disable all checkboxes for the cooldown duration
+            setGridDisabled(true);
+            showToast(
+              "Rate Limited",
+              "Too many requests — slow down a bit!",
+              "error",
+              5500,
+            );
+            setTimeout(() => setGridDisabled(false), 5500);
+          } else {
+            showToast("Server Error", msg, "error");
+          }
+        });
+
         fetchStateFromServer();
       });
 
@@ -971,8 +1008,9 @@
 
               input.addEventListener("change", (e) => {
                 const checked = e.target.checked;
-                socket.emit("client:checkbox:changed", { index, checked });
-                fetchStateFromServer();
+                lastChanged = input;
+                if (socket)
+                  socket.emit("client:checkbox:changed", { index, checked });
 
                 input.classList.remove("popping");
                 void input.offsetWidth;

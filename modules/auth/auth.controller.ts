@@ -16,6 +16,8 @@ export default class AuthController {
 
       const isProduction = process.env.NODE_ENV?.toLowerCase() === "production";
 
+      console.log(isProduction)
+
       res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
         secure: isProduction,

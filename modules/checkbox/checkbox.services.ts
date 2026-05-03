@@ -12,9 +12,13 @@ export const getState = async () => {
       CHECKBOX_STATE_KEY,
       JSON.stringify(new Array(CHECKBOX_SIZE).fill(false)),
     );
+    console.log("NO state found");
     throw ApiError.notFound("No state found");
   }
 
+  console.log(existingState);
+
   const rawData = JSON.parse(existingState);
+  console.log(rawData);
   return rawData;
 };

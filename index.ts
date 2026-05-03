@@ -48,6 +48,7 @@ async function main() {
     try {
       const user = await verifyAccessToken(accessToken);
       userId = user.sub;
+      console.log("[RATELIMIT] Socket user: ", user.sub)
     } catch (error) {
       return socket.disconnect();
     }

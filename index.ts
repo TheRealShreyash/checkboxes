@@ -50,6 +50,7 @@ async function main() {
       userId = user.sub;
       console.log("[RATELIMIT] Socket user: ", user.sub)
     } catch (error) {
+      console.log(error)
       return socket.disconnect();
     }
 

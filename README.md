@@ -87,7 +87,7 @@ cp .env.example .env
 # Fill in the values
 
 # Start Redis
-docker compuse up
+docker compose up
 
 # Run the server
 bun run dev

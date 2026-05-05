@@ -157,4 +157,4 @@ I wrote about the whole journey — WebSockets, auth nightmares, production debu
 
 ## Author
 
-**Shreyash** — [@wedan_ on X](https://x.com/wedan_)
+**Shreyash** — [@_wedan on X](https://x.com/_wedan)

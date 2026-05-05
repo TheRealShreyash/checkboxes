@@ -16,9 +16,6 @@ export const getState = async () => {
     throw ApiError.notFound("No state found");
   }
 
-  console.log(existingState);
-
   const rawData = JSON.parse(existingState);
-  console.log(rawData);
   return rawData;
 };
